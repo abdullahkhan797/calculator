@@ -1,0 +1,128 @@
+import tkinter as tk
+import math
+
+root = tk.Tk()
+root.title("Advanced Calculator")
+root.geometry("400x550")
+root.resizable(False, False)
+
+expression = ""
+history = []
+
+def press(num):
+    global expression
+    expression += str(num)
+    input_text.set(expression)
+
+def clear():
+    global expression
+    expression = ""
+    input_text.set("")
+
+def backspace():
+    global expression
+    expression = expression[:-1]
+    input_text.set(expression)
+
+def calculate():
+    global expression
+    try:
+        result = str(eval(expression))
+        history.append(expression + " = " + result)
+        update_history()
+        expression = result
+        input_text.set(result)
+    except:
+        input_text.set("Error")
+        expression = ""
+
+def sqrt():
+    global expression
+    try:
+        result = math.sqrt(float(expression))
+        history.append("√" + expression + " = " + str(result))
+        update_history()
+        expression = str(result)
+        input_text.set(result)
+    except:
+        input_text.set("Error")
+
+def square():
+    global expression
+    try:
+        result = float(expression) ** 2
+        history.append(expression + "² = " + str(result))
+        update_history()
+        expression = str(result)
+        input_text.set(result)
+    except:
+        input_text.set("Error")
+
+def trig(func):
+    global expression
+    try:
+        value = float(expression)
+        if func == "sin":
+            result = math.sin(math.radians(value))
+        elif func == "cos":
+            result = math.cos(math.radians(value))
+        elif func == "tan":
+            result = math.tan(math.radians(value))
+        history.append(f"{func}({expression}) = {result}")
+        update_history()
+        expression = str(result)
+        input_text.set(result)
+    except:
+        input_text.set("Error")
+
+def log():
+    global expression
+    try:
+        result = math.log10(float(expression))
+        history.append("log(" + expression + ") = " + str(result))
+        update_history()
+        expression = str(result)
+        input_text.set(result)
+    except:
+        input_text.set("Error")
+
+def update_history():
+    history_box.delete(0, tk.END)
+    for item in history[-6:]:
+        history_box.insert(tk.END, item)
+
+input_text = tk.StringVar()
+entry = tk.Entry(root, textvariable=input_text, font=('Arial', 20), bd=10, relief="sunken", justify="right")
+entry.pack(fill="x", padx=10, pady=10)
+
+frame = tk.Frame(root)
+frame.pack()
+
+buttons = [
+    ('7', 0, 0), ('8', 0, 1), ('9', 0, 2), ('/', 0, 3),
+    ('4', 1, 0), ('5', 1, 1), ('6', 1, 2), ('*', 1, 3),
+    ('1', 2, 0), ('2', 2, 1), ('3', 2, 2), ('-', 2, 3),
+    ('0', 3, 0), ('.', 3, 1), ('=', 3, 2), ('+', 3, 3)
+]
+
+for (text, row, col) in buttons:
+    if text == '=':
+        tk.Button(frame, text=text, width=8, height=2, command=calculate).grid(row=row, column=col)
+    else:
+        tk.Button(frame, text=text, width=8, height=2, command=lambda t=text: press(t)).grid(row=row, column=col)
+
+tk.Button(frame, text="C", width=8, height=2, command=clear).grid(row=4, column=0)
+tk.Button(frame, text="←", width=8, height=2, command=backspace).grid(row=4, column=1)
+tk.Button(frame, text="√", width=8, height=2, command=sqrt).grid(row=4, column=2)
+tk.Button(frame, text="x²", width=8, height=2, command=square).grid(row=4, column=3)
+
+tk.Button(frame, text="sin", width=8, height=2, command=lambda: trig("sin")).grid(row=5, column=0)
+tk.Button(frame, text="cos", width=8, height=2, command=lambda: trig("cos")).grid(row=5, column=1)
+tk.Button(frame, text="tan", width=8, height=2, command=lambda: trig("tan")).grid(row=5, column=2)
+tk.Button(frame, text="log", width=8, height=2, command=log).grid(row=5, column=3)
+
+tk.Label(root, text="History", font=("Arial", 12)).pack(pady=5)
+history_box = tk.Listbox(root, height=6)
+history_box.pack(fill="x", padx=10)
+
+root.mainloop()
